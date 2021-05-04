@@ -1,21 +1,73 @@
+# version: "3.2"
+
+# services:
+#   # Create broker for pub and sub data
+#   rabbitmq:
+#     image: rabbitmq:latest
+#     container_name: "rabbitmq"
+#     ports:
+#       - 5672:5672
+#       # for see the web page
+#       - 15672:15672
+#     volumes:
+#       - "rabbitmq_data:/data"
+#     networks:
+#       - rabbitmq_py
+
+#     #   depends_on:
+# networks:
+#   rabbitmq_py:
+#     driver: bridge
+
+# volumes:
+#   rabbitmq_data:
+# version: "3"
+
+# services:
+#   rabbitmq:
+#     image: "rabbitmq:3-management"
+#     container_name: "rabbitmq"
+#     ports:
+#       - "5672:5672"
+#       - "15672:15672"
+#       - "1883:1883"
+
+#     networks:
+#       - rabbitmq_net
+
+# networks:
+#   rabbitmq_net:
+#     driver: bridge
+
 version: "3.2"
 
 services:
-  # Create broker for pub and sub data
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
-    container_name: "rabbitmq"
+  redis:
+    image: "redis:alpine"
+
+    # command: redis-server --requirepass sOmE_sEcUrE_pAsS
+
     ports:
-      - 5672:5672
-      - 15672:15672
-    volumes:
-      - "rabbitmq_data:/data"
+      - "6379:6379"
+
+    environment:
+      - REDIS_REPLICATION_MODE=master
+
     networks:
-      - rabbitmq_py
+      node_net:
+        ipv4_address: 172.28.1.4
 
+  api:
+    build: .
+    environment:
+      - PORT=8080
+    ports:
+      - 8080:8080
+
+# networking for the Redis container
 networks:
-  rabbitmq_py:
-    driver: bridge
-
-volumes:
-  rabbitmq_data:
+  node_net:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/16
