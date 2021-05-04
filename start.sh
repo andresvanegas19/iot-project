@@ -1,0 +1,1 @@
+uvicorn main:my_awesome_api --reload
