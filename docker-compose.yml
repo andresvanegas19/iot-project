@@ -1,64 +1,24 @@
-# version: "3.2"
-
-# services:
-#   # Create broker for pub and sub data
-#   rabbitmq:
-#     image: rabbitmq:latest
-#     container_name: "rabbitmq"
-#     ports:
-#       - 5672:5672
-#       # for see the web page
-#       - 15672:15672
-#     volumes:
-#       - "rabbitmq_data:/data"
-#     networks:
-#       - rabbitmq_py
-
-#     #   depends_on:
-# networks:
-#   rabbitmq_py:
-#     driver: bridge
-
-# volumes:
-#   rabbitmq_data:
-# version: "3"
-
-# services:
-#   rabbitmq:
-#     image: "rabbitmq:3-management"
-#     container_name: "rabbitmq"
-#     ports:
-#       - "5672:5672"
-#       - "15672:15672"
-#       - "1883:1883"
-
-#     networks:
-#       - rabbitmq_net
-
-# networks:
-#   rabbitmq_net:
-#     driver: bridge
-
-version: "3.2"
+version: "3.8"
 
 services:
-  redis:
-    image: "redis:alpine"
-    container_name: "redis-broker"
+  # redis:
+  #   image: "redis:alpine"
+  #   container_name: "redis-broker"
 
-    command: redis-server --requirepass lsd3sd
+  #   command: redis-server --requirepass lsd3sd
 
-    ports:
-      - "6379:6379"
+  #   ports:
+  #     - "6379:6379"
 
-    environment:
-      - REDIS_REPLICATION_MODE=master
+  #   environment:
+  #     - REDIS_REPLICATION_MODE=master
 
-    networks:
-      - pubsub
+  #   networks:
+  #     - pubsub
 
   rabbitmq:
     image: rabbitmq:latest
+
     container_name: "rabbitmq"
     ports:
       # - 5672:5672
@@ -68,6 +28,8 @@ services:
     networks:
       - pubsub
 
+    command: rabbitmq-plugins enable rabbitmq_mqtt
+
   pub:
     build:
       context: .
@@ -76,11 +38,11 @@ services:
     stdin_open: true
     tty: true
     # ports:
-      # - 5672:5672
-      # - 15672:15672
-      # - 1881:1883
+    # - 5672:5672
+    # - 15672:15672
+    # - 1881:1883
     volumes:
-      - .:/scripts
+      - .:/app
     networks:
       - pubsub
     depends_on:

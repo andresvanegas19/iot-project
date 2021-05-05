@@ -1,9 +1,15 @@
-FROM python:3.9.1
+FROM python:3.9.5-alpine3.13
 
-# RUN apt-get update
-# RUN apt-get -y install tesseract-ocr
-# RUN apt-get install tesseract-ocr-ben
+# RUN apt-get update \
+# && apt-get install gcc -y \
+# && apt-get clean
 
-ADD . /scripts
+# COPY requirements.txt /app/requirements.txt
+# WORKDIR app
+# RUN pip install --user -r requirements.txt
+# COPY . /app
+# ENTRYPOINT uvicorn main:app --reload --host 0.0.0.0 --port 1234
 
-# RUN pip install -r requirements.txt
+ADD . /app
+
+WORKDIR /app
