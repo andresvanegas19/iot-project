@@ -49,6 +49,7 @@ Para la documentación se puede ir al siguiente enlace
 
 Si este enlace no se encuentra en funcionamiento puede ejecutar el proyecto y mirar toda la documentación en:
 
+Para mas documentacion sobre los endpoints dirijete a ->  http://127.0.0.1/redoc
 
 ### Testing
 Para el desarrollo de este proyecto se utiliza varios tipos de testing, aparte de esto se tiene CI para la integración del proyecto y que este tenga un buen funcionamiento

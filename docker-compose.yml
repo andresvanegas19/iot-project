@@ -44,8 +44,9 @@ version: "3.2"
 services:
   redis:
     image: "redis:alpine"
+    container_name: "redis-broker"
 
-    # command: redis-server --requirepass sOmE_sEcUrE_pAsS
+    command: redis-server --requirepass lsd3sd
 
     ports:
       - "6379:6379"
@@ -54,20 +55,44 @@ services:
       - REDIS_REPLICATION_MODE=master
 
     networks:
+      - pubsub
+
+    networks:
       node_net:
         ipv4_address: 172.28.1.4
+  # rabbitmq:
+  #   image: rabbitmq
+  #   container_name: "rabbitmq"
+  #   ports:
+  #     - 5672:5672
+  #     # for see the web page
+  #     - 15672:15672
+  #   networks:
+  #     - pubsub
 
   api:
     build: .
-    environment:
-      - PORT=8080
+    container_name: "fastapi"
     ports:
-      - 8080:8080
+      - 8000:80
+    depends_on:
+      # - redis
+      - rabbitmq
+    volumes:
+      - .:/app
+    networks:
+      - pubsub
 
-# networking for the Redis container
+    # networks:
+    #   - node_net
+
+    # # networking for the Redis container
 networks:
-  node_net:
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.28.0.0/16
+  pubsub:
+    driver: bridge
+  # networks:
+#   node_net:
+#     ipam:
+#       driver: default
+#       config:
+#         - subnet: 172.28.0.0/16

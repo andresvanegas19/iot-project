@@ -4,7 +4,6 @@
 
 # WORKDIR /app
 
-# RUN pip install -r requirements.txt
 
 # EXPOSE 80
 
@@ -12,8 +11,10 @@
 # CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
 FROM tiangolo/uvicorn-gunicorn-fastapi:python3.7
 
-COPY . .
+COPY ./requirements.txt /app/requirements.txt
 
 RUN pip install -r /app/requirements.txt
+
+EXPOSE 8000
 
 COPY . /app
