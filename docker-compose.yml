@@ -57,18 +57,35 @@ services:
     networks:
       - pubsub
 
+  rabbitmq:
+    image: rabbitmq:latest
+    container_name: "rabbitmq"
+    ports:
+      # - 5672:5672
+      # - 15672:15672
+      - 1883:1883
+
     networks:
-      node_net:
-        ipv4_address: 172.28.1.4
-  # rabbitmq:
-  #   image: rabbitmq
-  #   container_name: "rabbitmq"
-  #   ports:
-  #     - 5672:5672
-  #     # for see the web page
-  #     - 15672:15672
-  #   networks:
-  #     - pubsub
+      - pubsub
+
+  pub:
+    build:
+      context: .
+      dockerfile: pub.Dockerfile
+    container_name: "pub"
+    stdin_open: true
+    tty: true
+    # ports:
+      # - 5672:5672
+      # - 15672:15672
+      # - 1881:1883
+    volumes:
+      - .:/scripts
+    networks:
+      - pubsub
+    depends_on:
+      # - redis
+      - rabbitmq
 
   api:
     build: .
@@ -76,23 +93,15 @@ services:
     ports:
       - 8000:80
     depends_on:
-      # - redis
+      - redis
       - rabbitmq
     volumes:
       - .:/app
     networks:
       - pubsub
 
-    # networks:
-    #   - node_net
-
-    # # networking for the Redis container
 networks:
   pubsub:
     driver: bridge
-  # networks:
-#   node_net:
-#     ipam:
-#       driver: default
-#       config:
-#         - subnet: 172.28.0.0/16
+    ipam:
+      driver: default
