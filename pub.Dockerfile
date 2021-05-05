@@ -10,6 +10,6 @@ FROM python:3.9.5-alpine3.13
 # COPY . /app
 # ENTRYPOINT uvicorn main:app --reload --host 0.0.0.0 --port 1234
 
-ADD . /app
+ADD ./pub /app
 
 WORKDIR /app

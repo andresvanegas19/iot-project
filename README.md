@@ -11,9 +11,13 @@ Python 3.9
 ```
 
 Para comenzar el proyecto ejecutar los siguientes comandos
+
 ``` bash
 docker compose up
 ```
+
+Ejecutando este comando van a correr 3 contenedores que seran un simulador IOT, un broker que esta en rabbitmq y un API Rest que esta sobre fastApi
+
 
 ## Construido con
 
