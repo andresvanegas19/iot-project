@@ -11,13 +11,9 @@ Python 3.9
 ```
 
 Para comenzar el proyecto ejecutar los siguientes comandos
-
 ``` bash
 docker compose up
 ```
-
-Ejecutando este comando van a correr 3 contenedores que seran un simulador IOT, un broker que esta en rabbitmq y un API Rest que esta sobre fastApi
-
 
 ## Construido con
 
@@ -53,12 +49,14 @@ Para la documentación se puede ir al siguiente enlace
 
 Si este enlace no se encuentra en funcionamiento puede ejecutar el proyecto y mirar toda la documentación en:
 
-Para mas documentacion sobre los endpoints dirijete a ->  http://127.0.0.1/redoc
 
 ### Testing
 Para el desarrollo de este proyecto se utiliza varios tipos de testing, aparte de esto se tiene CI para la integración del proyecto y que este tenga un buen funcionamiento
 
+### Mejoras
+- [ ] usar TLS
+- [ ] Mejorar la estructura para anadir mas medidores dinamicamente
+
 
 ### Autor
-
 Twitter: [Andres reyes](https://twitter.com/andres_vanml)

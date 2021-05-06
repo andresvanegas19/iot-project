@@ -3,15 +3,13 @@ version: "3.8"
 services:
   broker:
     image: rabbitmq:latest
-
+    # enable the mttq protocol
     command: '/bin/bash -c "rabbitmqctl add_user guest guest; rabbitmq-plugins enable rabbitmq_mqtt; rabbitmq-server"'
-
     container_name: "rabbitmq"
     ports:
       # - 5672:5672
       - 15672:15672
       - 1883:1883
-
     networks:
       - pubsub
 
@@ -20,6 +18,7 @@ services:
       context: .
       dockerfile: pub.Dockerfile
     container_name: "pub"
+    command: "python3 pub.py"
     stdin_open: true
     tty: true
     volumes:
@@ -27,20 +26,30 @@ services:
     networks:
       - pubsub
     depends_on:
-      # - redis
       - broker
 
   api:
     build: .
+    env_file:
+      - .env
     container_name: "fastapi"
     ports:
-      - 8000:80
+      - "8000:8000"
     depends_on:
       - broker
     volumes:
       - .:/app
     networks:
       - pubsub
+
+
+  db:
+    image: postgres:12
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+
 
 networks:
   pubsub:
