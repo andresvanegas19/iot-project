@@ -6,16 +6,16 @@ from random import randint
 import time
 
 
-BROKER = "rabbitmq"
+BROKER = "localhost"
 PORT = 1883
-TOPIC = "tmp/temp-v2v"
+TOPIC = "foo"
 USERNAME = 'test'
 PASSWORD = 'test'
 
 def publish(client):
     while True:
         # publish a value each 10 seconds
-        time.sleep(10)
+        time.sleep(1)
         # generate the value temp
         result = client.publish(TOPIC, randint(50, 100))
         status = result[0]

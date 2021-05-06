@@ -4,7 +4,7 @@ services:
   broker:
     image: rabbitmq:latest
     # enable the mttq protocol
-    command: '/bin/bash -c "rabbitmqctl add_user guest guest; rabbitmq-plugins enable rabbitmq_mqtt; rabbitmq-server"'
+    command: '/bin/bash -c "rabbitmq-plugins enable rabbitmq_mqtt; rabbitmq-server"'
     container_name: "rabbitmq"
     ports:
       # - 5672:5672
@@ -45,6 +45,7 @@ services:
 
   db:
     image: postgres:12
+    container_name: "psg"
     env_file:
       - .env
     ports:

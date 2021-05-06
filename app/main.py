@@ -1,21 +1,35 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from flask import Flask
+import paho.mqtt.client as mqtt
 
-from app.core.config import settings
+app = Flask(__name__)
+
+topic = 'foo'
+port = 5001
+USERNAME = 'test'
+PASSWORD = 'test'
+
+def on_connect(client, userdata, flags, rc):
+    client.subscribe(topic)
+    # client.publish(topic2, "STARTING SERVER")
+    # client.publish(topic2, "CONNECTED")
+
+def on_message(client, userdata, msg):
+    print(msg.topic+" "+str(msg.payload))
+# def on_message(client, userdata, msg):
+#     client.publish(topic, "MESSAGE")
 
 
-def get_application():
-    _app = FastAPI(title=settings.PROJECT_NAME)
+@app.route('/')
+def hello_world():
+    return 'Hello World! I am running on port ' + str(port)
 
-    _app.add_middleware(
-        CORSMiddleware,
-        allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+if __name__ == '__main__':
+    client = mqtt.Client()
+    #client.username_pw_set(username, password)
+    client.on_connect = on_connect
+    client.on_message = on_message
+    client.username_pw_set(USERNAME, PASSWORD)
+    client.connect('localhost', 1883, 60)
+    client.loop_start()
 
-    return _app
-
-
-app = get_application()
+    app.run(host='0.0.0.0', port=port)
