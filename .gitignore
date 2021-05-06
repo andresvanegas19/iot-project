@@ -1,6 +1,9 @@
+migrations
+postgres-data
 iot
 __pycache__
 gar
+paho.mqtt.python
 .env
 
 # Byte-compiled / optimized / DLL files
