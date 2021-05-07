@@ -5,6 +5,8 @@ __pycache__
 gar
 paho.mqtt.python
 .env
+reporte.csv
+analisis_temp.png
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

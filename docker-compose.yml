@@ -2,10 +2,14 @@ version: "3.8"
 
 services:
   broker:
-    image: rabbitmq:latest
+    build:
+      context: .
+      dockerfile: broker.Dockerfile
     # enable the mttq protocol
-    command: '/bin/bash -c "rabbitmq-plugins enable rabbitmq_mqtt; rabbitmq-server"'
-    container_name: "rabbitmq"
+    # volumes:
+    #   - ./scripts/create-user.sh:/create-user.sh
+    restart: unless-stopped
+    container_name: "broker"
     ports:
       # - 5672:5672
       - 15672:15672
@@ -13,40 +17,26 @@ services:
     networks:
       - pubsub
 
-  pub:
-    build:
-      context: .
-      dockerfile: pub.Dockerfile
-    container_name: "pub"
-    command: "python3 pub.py"
-    stdin_open: true
-    tty: true
-    volumes:
-      - .:/app
-    networks:
-      - pubsub
-    depends_on:
-      - broker
-
-  api:
-    build: .
-    # env_file:
-    #   - .env
-    container_name: "fastapi"
-    ports:
-      - "8000:8000"
-    depends_on:
-      - broker
-    volumes:
-      - .:/app
-    networks:
-      - pubsub
+  # run the iot device in local for more accesibility
+  # pub:
+  #   build:
+  #     context: .
+  #     dockerfile: pub.Dockerfile
+  #   container_name: "pub"
+  #   # command: "python3 pub.py"
+  #   stdin_open: true
+  #   tty: true
+  #   ports:
+  #     - 1884:1883
+  #   volumes:
+  #     - ./pub:/app
+  #   networks:
+  #     - pubsub
+  #   depends_on:
+  #     - broker
 
   db:
     image: postgres:12
-    # build:
-    #   context: .
-    #   dockerfile: db.Dockerfile
     container_name: "psg"
     environment:
       - POSTGRES_USER=user
@@ -55,11 +45,22 @@ services:
     restart: unless-stopped
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
-    # env_file:
-    #   - .env
     ports:
       - "5432:5432"
 
+  api:
+    build: .
+    container_name: "restapi"
+    command: "python3 app/main.py"
+    ports:
+      - "8000:8000"
+    depends_on:
+      - broker
+      - db
+    volumes:
+      - .:/app
+    networks:
+      - pubsub
 
 networks:
   pubsub:

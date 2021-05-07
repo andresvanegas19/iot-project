@@ -1,27 +1,38 @@
-from flask import Flask
-import paho.mqtt.client as mqtt
+#!/usr/bin/env python3
+''' The file that contains all the functions '''
+
+
+import matplotlib.pyplot as plt
+from flask import request, Flask, Response, redirect,  url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask import request
-# from datetime import date
-# import datetime
+
+import paho.mqtt.client as mqtt
+
 import datetime
 import itertools
 import time
-from flask import Response, redirect,  url_for
+
+import csv
+import pandas as pd
+import numpy as np
+
+import matplotlib
+matplotlib.use('Agg')
+
 
 datetime.datetime.utcnow()
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://user:pass@localhost:5432/db"
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://user:pass@psg:5432/db"
 db = SQLAlchemy(app)
 
 migrate = Migrate(app, db)
-port = 5001
 topic = 'foo'
-port = 5001
+port = 8000
 USERNAME = 'test'
 PASSWORD = 'test'
+BROKER = 'broker'
 
 
 class Reporte(db.Model):
@@ -39,8 +50,19 @@ class Reporte(db.Model):
 with app.app_context():
     db.create_all()
 
+def bad_request(message):
+    response = jsonify({'error': message})
+    response.status_code = 400
+    return response
 
-@app.route('/statistics')
+
+def not_found(message):
+    response = jsonify({'error': message})
+    response.status_code = 404
+    return response
+
+
+@app.route('/statistics', methods=['GET'])
 def report():
     if request.headers.get('accept') == 'text/event-stream':
         def events():
@@ -53,19 +75,50 @@ def report():
     return redirect(url_for('static', filename='index.html'))
 
 
-@app.route('/reportes', methods=['DELETE'])
-def delete():
-    if request.method == 'DELETE':
-        Reporte.query.delete()
-        db.session.commit()
-        return {}
+@app.route('/analisis', methods=['POST'])
+def analisis():
+    if request.method == 'POST':
+        generate_csv()
 
-@app.route('/csv', methods=['DELETE'])
-def delete():
-    if request.method == 'DELETE':
-        Reporte.query.delete()
+        df = pd.read_csv('reporte.csv')
+
+        group_by_temp = df.groupby([df["Reporte"]], as_index=False).count()
+
+        new = group_by_temp.groupby(
+            pd.cut(group_by_temp["Reporte"], np.arange(50, 110, 10))).sum()
+
+        name = ["50-60 °C", "60-70 °C", "70-80 °C", "80-90 °C", "90-100 °C"]
+
+        fig, ax = plt.subplots(nrows=1, ncols=1)
+
+        ax.bar(np.arange(len(name)), new["Feacha"], width=0.5, color='blue')
+        plt.title("Numero de veces que se reporto el rango de temperatura")
+        plt.xticks(np.arange(len(name)), name, size="medium")
+
+        name_file = 'analisis_temp.png'
+        fig.savefig(name_file)
+        plt.close(fig)
+
+        return {"Exito": f"se guardo el archivo {name_file} con exito"}
+
+
+@app.route('/csv', methods=['POST'])
+def generate_csv():
+    name_file = 'reporte.csv'
+    with open(name_file, 'w+') as file_csv:
+        filewriter = csv.writer(file_csv, delimiter=',',
+                                quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        filewriter.writerow(['Feacha', 'Reporte'])
+
+        reportes = Reporte.query.order_by(Reporte.id.desc())
         db.session.commit()
-        return {}
+
+        for reporte in reportes:
+            filewriter.writerow(
+                [datetime.datetime.timestamp(reporte.date), reporte.metrica])
+        file_csv.close()
+
+    return {"Exito": f"se guardo el archivo {name_file} con exito"}
 
 
 @app.route('/reportes', methods=['GET'])
@@ -82,25 +135,7 @@ def on_message(client, userdata, msg):
     reporte = Reporte(metrica=int(msg.payload))
     db.session.add(reporte)
     db.session.commit()
-    # print(type(int(msg.payload)) == type(1))
     print(msg.topic+" "+str(msg.payload))
-
-
-# @app.route('/')
-# def pin():
-#     return 'Hello World! I am running on port ' + str(port)
-
-# Custom Error Helper Functions
-def bad_request(message):
-    response = jsonify({'error': message})
-    response.status_code = 400
-    return response
-
-
-def not_found(message):
-    response = jsonify({'error': message})
-    response.status_code = 404
-    return response
 
 
 if __name__ == '__main__':
@@ -108,7 +143,7 @@ if __name__ == '__main__':
     client.on_connect = on_connect
     client.on_message = on_message
     client.username_pw_set(USERNAME, PASSWORD)
-    client.connect('localhost', 1883, 60)
+    client.connect(BROKER, 1883, 60)
     client.loop_start()
 
     # db.init_app(app)
