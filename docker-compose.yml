@@ -38,7 +38,7 @@ services:
 
   db:
     image: postgres:12
-    container_name: "psg"
+    container_name: "db"
     environment:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=pass
@@ -53,6 +53,7 @@ services:
     build: .
     container_name: "restapi"
     command: "python3 app/main.py"
+    restart: always
     ports:
       - "8000:8000"
     depends_on:

@@ -24,7 +24,7 @@ matplotlib.use('Agg')
 datetime.datetime.utcnow()
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://user:pass@psg:5432/db"
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://user:pass@pubsub:5432/db"
 db = SQLAlchemy(app)
 
 migrate = Migrate(app, db)
