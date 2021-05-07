@@ -40,18 +40,27 @@ with app.app_context():
     db.create_all()
 
 
-@app.route('/')
-def index():
+@app.route('/statistics')
+def report():
     if request.headers.get('accept') == 'text/event-stream':
         def events():
             for i, c in enumerate(itertools.cycle('\|/-')):
-                yield "data: %s %d\n\n" % (c, i)
-                time.sleep(.1)  # an artificial delay
+                reporte = Reporte.query.order_by(Reporte.id.desc()).first()
+                db.session.commit()
+                yield "data: %s,%s\n\n" % (reporte.metrica, reporte.date)
+                time.sleep(3)  # an artificial delay
         return Response(events(), content_type='text/event-stream')
     return redirect(url_for('static', filename='index.html'))
 
 
 @app.route('/reportes', methods=['DELETE'])
+def delete():
+    if request.method == 'DELETE':
+        Reporte.query.delete()
+        db.session.commit()
+        return {}
+
+@app.route('/csv', methods=['DELETE'])
 def delete():
     if request.method == 'DELETE':
         Reporte.query.delete()
@@ -73,8 +82,8 @@ def on_message(client, userdata, msg):
     reporte = Reporte(metrica=int(msg.payload))
     db.session.add(reporte)
     db.session.commit()
-    print(type(int(msg.payload)) == type(1))
-    # print(msg.topic+" "+str(msg.payload))
+    # print(type(int(msg.payload)) == type(1))
+    print(msg.topic+" "+str(msg.payload))
 
 
 # @app.route('/')

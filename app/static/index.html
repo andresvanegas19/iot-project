@@ -1,17 +1,124 @@
-<!doctype html>
-<title>Server Send Events Demo</title>
-<style>
-    #data {
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript" src="http://static.pureexample.com/js/flot/jquery.flot.min.js"></script>
+<script type="text/javascript" src="http://static.pureexample.com/js/flot/jquery.flot.time.js"></script>
+<script type="text/javascript" src="http://static.pureexample.com/js/flot/jquery.flot.axislabels.js"></script>
+
+<!-- CSS -->
+<style type="text/css">
+    #flotcontainer {
+        width: 600px;
+        height: 200px;
         text-align: center;
+        margin: 0 auto;
     }
 </style>
-<script src="http://code.jquery.com/jquery-latest.js"></script>
+
+
+<!-- Javascript -->
 <script>
-    if (!!window.EventSource) {
-        var source = new EventSource('/');
-        source.onmessage = function (e) {
-            $("#data").text(e.data);
+    const source = new EventSource('/statistics');
+    var data = [];
+    var dataset;
+    var totalPoints = 50;
+    var updateInterval = 3000;
+    var now = new Date().getTime();
+
+    let data_s;
+
+    function GetData() {
+        source.onmessage = function (data) {
+            data_s = data.data ? data.data.split(',') : null;
+        };
+
+        if (!data_s) return;
+
+        data.shift();
+
+        while (data.length < totalPoints) {
+            var temp = [data_s ? +new Date(data_s[1]) : +new Date(), data_s ? Number(data_s[0]) : 0];
+
+            data.push(temp);
         }
     }
+
+    var options = {
+        series: {
+            lines: {
+                show: true,
+                lineWidth: 1.2,
+                fill: true
+            }
+        },
+        xaxis: {
+            mode: "time",
+            tickSize: [2, "second"],
+            tickFormatter: function (v, axis) {
+                var date = new Date(v);
+
+                if (date.getSeconds() % 20 == 0) {
+                    var hours = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
+                    var minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
+                    var seconds = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
+
+                    return hours + ":" + minutes + ":" + seconds;
+                } else {
+                    return "";
+                }
+            },
+            axisLabel: "Time",
+            axisLabelUseCanvas: true,
+            axisLabelFontSizePixels: 12,
+            axisLabelFontFamily: 'Verdana, Arial',
+            axisLabelPadding: 10
+        },
+        yaxis: {
+            min: 40,
+            max: 100,
+            tickSize: 10,
+            tickFormatter: function (v, axis) {
+                if (v % 10 == 0) {
+                    return v + "°C";
+                } else {
+                    return "";
+                }
+            },
+            axisLabel: "TEMP",
+            axisLabelUseCanvas: true,
+            axisLabelFontSizePixels: 12,
+            axisLabelFontFamily: 'Verdana, Arial',
+            axisLabelPadding: 6
+        },
+        legend: {
+            labelBoxBorderColor: "#fff"
+        }
+    };
+
+    $(document).ready(function () {
+        // setTimeout(function () {
+        GetData();
+        // }, 2000);
+
+
+        dataset = [
+            { label: "TEMP", data: data }
+        ];
+
+        $.plot($("#flotcontainer"), dataset, options);
+
+        function update() {
+            // setTimeout(function () {
+            GetData();
+            // }, 2000);
+
+            $.plot($("#flotcontainer"), dataset, options)
+            setTimeout(update, updateInterval);
+        }
+
+        update();
+    });
+
+
+
 </script>
-<div id="data">nothing received yet</div>
+
+<div id="flotcontainer"></div>
