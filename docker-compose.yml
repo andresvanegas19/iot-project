@@ -2,9 +2,10 @@ version: "3.8"
 
 services:
   broker:
-    build:
-      context: .
-      dockerfile: broker.Dockerfile
+    image: rabbitmq:3.8.16-alpine
+    # build:
+    #   context: .
+    #   dockerfile: broker.Dockerfile
     # enable the mttq protocol
     # volumes:
     #   - ./scripts/create-user.sh:/create-user.sh

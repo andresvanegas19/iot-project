@@ -75,7 +75,7 @@ def report():
     return redirect(url_for('static', filename='index.html'))
 
 
-@app.route('/analisis', methods=['POST'])
+@app.route('api/analisis', methods=['POST'])
 def analisis():
     if request.method == 'POST':
         generate_csv()
@@ -102,7 +102,7 @@ def analisis():
         return {"Exito": f"se guardo el archivo {name_file} con exito"}
 
 
-@app.route('/csv', methods=['POST'])
+@app.route('api/csv', methods=['POST'])
 def generate_csv():
     name_file = 'reporte.csv'
     with open(name_file, 'w+') as file_csv:
@@ -121,7 +121,7 @@ def generate_csv():
     return {"Exito": f"se guardo el archivo {name_file} con exito"}
 
 
-@app.route('/reportes', methods=['GET'])
+@app.route('api/reportes', methods=['GET'])
 def get_reports():
     if request.method == 'GET':
         return {"reportes": [{"metrica": reporte.metrica, "date": reporte.date} for reporte in Reporte.query.all()]}

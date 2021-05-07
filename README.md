@@ -12,7 +12,7 @@ Python 3.9
 
 Para comenzar el proyecto ejecutar los siguientes comandos
 ``` bash
-docker compose up
+docker compose  up --build
 ```
 
 ## Construido con
@@ -26,7 +26,9 @@ docker compose up
 - [ ] paho-mqtt
 - [ ] Sqlalchemy
 - [ ] uvicorn
-- [ ] fastapi
+- [ ] flask
+- [ ] matlibplot
+- [ ] pandas
 
 ---
 ### sobre el proyecto ⚒
@@ -59,19 +61,41 @@ Para la documentación se puede ir al siguiente enlace
 
 Si este enlace no se encuentra en funcionamiento puede ejecutar el proyecto y mirar toda la documentación en:
 
+### End-points
+
+GET /statistics
+Aca pueden ver en tiempo real los datos generados por el dispositivo
+
+POST /api/csv
+Genera un csv donde lo guarda local
+
+
+POST /api/analisis
+Genera una imagen que demuestra el reporte final de todo el tiempo que se ah tomado registro al dispositivo
+![](https://i.imgur.com/1d635oH.png)
+
+
+GET /api/reportes
+Retorna un JSON donde traera toda la inforamcion final generada por el dispositivo
+
 
 ### Testing
-Para el desarrollo de este proyecto se utiliza varios tipos de testing, aparte de esto se tiene CI para la integración del proyecto y que este tenga un buen funcionamiento
+Se utiliza github actions para CI/CD
+Proceso...
 
 ### Mejoras
 - [ ] usar TLS
 - [ ] Mejorar la estructura para anadir medidores dinamicos
 - [ ] Implementar security para la api
-- [ ] Migrarlo a Fast api para sincronia
+- [ ] Migrarlo a Fast api para asincronia
 - [ ] Mejorar el scheama
 - [ ] Documentacion con swagger
 - [ ] Manejar los errores
+- [ ] Crear y manejar variables de entorno
+- [ ] Mejorar los scripts
+- [ ] Hacer test
 
 
 ### Autor
 Twitter: [Andres reyes](https://twitter.com/andres_vanml)
+
