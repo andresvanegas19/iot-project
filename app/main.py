@@ -20,16 +20,21 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 
-
 datetime.datetime.utcnow()
 
+# db_user = 'user'
+# db_pass = 'pass'
+# db_host = 'db'
+# db_port = '5432'
+# db_name = 'db'
+
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://user:pass@pubsub:5432/db"
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://user:pass@db:5432/db"
 db = SQLAlchemy(app)
 
 migrate = Migrate(app, db)
 topic = 'foo'
-port = 8000
+PORT = 5000
 USERNAME = 'test'
 PASSWORD = 'test'
 BROKER = 'broker'
@@ -75,7 +80,7 @@ def report():
     return redirect(url_for('static', filename='index.html'))
 
 
-@app.route('api/analisis', methods=['POST'])
+@app.route('/api/analisis', methods=['POST'])
 def analisis():
     if request.method == 'POST':
         generate_csv()
@@ -102,7 +107,7 @@ def analisis():
         return {"Exito": f"se guardo el archivo {name_file} con exito"}
 
 
-@app.route('api/csv', methods=['POST'])
+@app.route('/api/csv', methods=['POST'])
 def generate_csv():
     name_file = 'reporte.csv'
     with open(name_file, 'w+') as file_csv:
@@ -121,7 +126,7 @@ def generate_csv():
     return {"Exito": f"se guardo el archivo {name_file} con exito"}
 
 
-@app.route('api/reportes', methods=['GET'])
+@app.route('/api/reportes', methods=['GET'])
 def get_reports():
     if request.method == 'GET':
         return {"reportes": [{"metrica": reporte.metrica, "date": reporte.date} for reporte in Reporte.query.all()]}
@@ -148,4 +153,4 @@ if __name__ == '__main__':
 
     # db.init_app(app)
     # migrate.init_app(app, db)
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=PORT)

@@ -14,7 +14,15 @@ Para comenzar el proyecto ejecutar los siguientes comandos
 ``` bash
 docker compose  up --build
 ```
-
+Despues de que los contenedores estan corriendo ejecutar
+```
+./scripts/init-rabbitmq.sh
+```
+Y por ultimo se debe correr un script para simular un dispositivo IOT
+```
+pip install paho-mqtt==1.5.1
+python3 pub/pub.py
+```
 ## Construido con
 
 - Flask - python
@@ -65,8 +73,10 @@ Si este enlace no se encuentra en funcionamiento puede ejecutar el proyecto y mi
 
 GET /statistics
 Aca pueden ver en tiempo real los datos generados por el dispositivo
+![](https://i.imgur.com/bgLfJjY.png)
 
 POST /api/csv
+
 Genera un csv donde lo guarda local
 
 
@@ -94,7 +104,7 @@ Proceso...
 - [ ] Crear y manejar variables de entorno
 - [ ] Mejorar los scripts
 - [ ] Hacer test
-
+- [ ] Borrar dependencias que no se usan
 
 ### Autor
 Twitter: [Andres reyes](https://twitter.com/andres_vanml)

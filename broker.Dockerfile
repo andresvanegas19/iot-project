@@ -1,7 +1,10 @@
-FROM rabbitmq:3.8.16-alpine
+FROM rabbitmq:3.6.6-management
 
-# exit with 0 for build the container and not recive other exit command
-RUN rabbitmq-plugins enable rabbitmq_mqtt; rabbitmq-server && \
-    rabbitmqctl add_user test test && \
-    rabbitmqctl set_user_tags test administrator && \
-    rabbitmqctl set_permissions -p / test ".*" ".*" ".*"; exit 0
+RUN rabbitmq-plugins enable rabbitmq_mqtt; rabbitmq-server;
+
+ADD rabbitmq.config /etc/rabbitmq/
+
+ADD definitions.json /etc/rabbitmq/
+RUN chown rabbitmq:rabbitmq /etc/rabbitmq/rabbitmq.config /etc/rabbitmq/definitions.json
+
+CMD ["rabbitmq-server"]

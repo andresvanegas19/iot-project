@@ -6,6 +6,10 @@ services:
     # build:
     #   context: .
     #   dockerfile: broker.Dockerfile
+    command: '/bin/bash -c "rabbitmq-plugins enable rabbitmq_mqtt; rabbitmq-server"'
+    volumes:
+      - ./rabbitmq.config:/etc/rabbitmq/rabbitmq.config:ro
+      - ./definitions.json:/etc/rabbitmq/definitions.json:ro
     # enable the mttq protocol
     # volumes:
     #   - ./scripts/create-user.sh:/create-user.sh
@@ -48,24 +52,31 @@ services:
       - ./postgres-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - pubsub
 
-  api:
-    build: .
-    container_name: "restapi"
-    command: "python3 app/main.py"
-    restart: always
+  apirest:
+    build:
+      context: .
+      dockerfile: api.Dockerfile
+    container_name: "apirest"
+    environment:
+      STAGE: test
+    command: "python3 main.py"
+    restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "5000:5000"
     depends_on:
-      - broker
       - db
+      - broker
     volumes:
-      - .:/app
+      - ./app:/code
     networks:
       - pubsub
 
 networks:
+  # pubsub:
+  #   driver: bridge
+  #   ipam:
+  #     driver: default
   pubsub:
-    driver: bridge
-    ipam:
-      driver: default
